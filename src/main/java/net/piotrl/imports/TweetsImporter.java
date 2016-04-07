@@ -70,12 +70,13 @@ public class TweetsImporter implements Upload.Receiver, Upload.SucceededListener
 
         List<Tweet> allTweets = tweetsRepository.findByPartyNameStartsWithIgnoreCase(partyName);
         Summary summary = tweetSummaryService.calcSummaries(allTweets);
-        saveParty(partyName, summary);
+        saveParty(partyName, summary, allTweets.size());
     }
 
-    private void saveParty(String partyName, Summary summary) {
+    private void saveParty(String partyName, Summary summary, int size) {
         Party party = new Party();
         party.setName(partyName);
+        party.setTweetsSize(size);
         BeanUtils.copyProperties(summary, party);
         partyRepository.save(party);
     }

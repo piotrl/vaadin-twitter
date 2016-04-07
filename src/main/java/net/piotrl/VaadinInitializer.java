@@ -64,26 +64,24 @@ public class VaadinInitializer extends UI {
 
         filter.setInputPrompt("Filter by party name");
 
-        // Hook logic to components
-
         // Replace listing with filtered content when user changes filter
-        filter.addTextChangeListener(e -> partiesList(e.getText()));
+        filter.addTextChangeListener(e -> refreshPartiesGrid(e.getText()));
 
         grid.addSelectionListener(e -> {
             if (e.getSelected().isEmpty()) {
                 tweetsPreview.setVisible(false);
             } else {
                 Party selectedParty = (Party) grid.getSelectedRow();
-//                tweetsPreview.preview(selectedParty.getName());
+                tweetsPreview.preview(selectedParty.getName());
                 summaryPreview.preview(selectedParty.getId());
             }
         });
 
         // Initialize listing
-        partiesList(null);
+        refreshPartiesGrid(null);
     }
 
-    private void partiesList(String partyName) {
+    private void refreshPartiesGrid(String partyName) {
         List<Party> parties;
         if (StringUtils.isEmpty(partyName)) {
             parties = partyRepository.findAll();

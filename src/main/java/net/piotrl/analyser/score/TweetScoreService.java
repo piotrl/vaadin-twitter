@@ -5,13 +5,11 @@ import net.piotrl.analyser.words.Emotion;
 import net.piotrl.analyser.words.WordSemantic;
 import net.piotrl.dao.Tweet;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.util.stream.Collectors.toList;
 import static net.piotrl.analyser.words.Emotion.*;
 
 public class TweetScoreService {
@@ -20,16 +18,6 @@ public class TweetScoreService {
 
     public TweetScoreService(List<WordSemantic> database) {
         this.database = database;
-    }
-
-    public DaySummary calcDaySummary(LocalDate day, List<TweetScore> tweetsScores) {
-        List<TweetScore> dayTweets = tweetsScores.stream()
-                .filter(tweetScore -> day.equals(tweetScore.getTweet().getDay()))
-                .collect(toList());
-
-        DaySummary daySummary = calcSummary(dayTweets);
-        daySummary.setDay(day);
-        return daySummary;
     }
 
     public DaySummary calcSummary(List<TweetScore> classifiedTweets) {
@@ -79,7 +67,7 @@ public class TweetScoreService {
         List<String> wordList = Arrays.asList(content.split(" "));
         TweetScore score = wordList.stream()
                 .filter(word -> word.length() > 3)
-                .map(this::classifiedSemantic)
+                .map(this::semanticClassification)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .reduce(new TweetScore(), (old, curr) -> {
@@ -122,7 +110,7 @@ public class TweetScoreService {
         return emotion;
     }
 
-    private Optional<WordSemantic> classifiedSemantic(String word) {
+    private Optional<WordSemantic> semanticClassification(String word) {
         return database.stream()
                 .filter(wordSemantic ->
                         StringSimilarity.similarity(wordSemantic.getName(), word) > 0.75
