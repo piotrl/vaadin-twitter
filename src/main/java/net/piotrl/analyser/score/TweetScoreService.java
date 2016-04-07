@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.util.stream.Collectors.toList;
 import static net.piotrl.analyser.words.Emotion.*;
 
-
 public class TweetScoreService {
 
     private List<WordSemantic> database;
@@ -28,12 +27,12 @@ public class TweetScoreService {
                 .filter(tweetScore -> day.equals(tweetScore.getTweet().getDay()))
                 .collect(toList());
 
-        DaySummary daySummary = calcDaySummary(dayTweets);
+        DaySummary daySummary = calcSummary(dayTweets);
         daySummary.setDay(day);
         return daySummary;
     }
 
-    private DaySummary calcDaySummary(List<TweetScore> classifiedTweets) {
+    public DaySummary calcSummary(List<TweetScore> classifiedTweets) {
         AtomicInteger anger = new AtomicInteger();
         AtomicInteger happy = new AtomicInteger();
         AtomicInteger sadness = new AtomicInteger();

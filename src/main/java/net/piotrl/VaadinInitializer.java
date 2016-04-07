@@ -5,9 +5,11 @@ import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
+import net.piotrl.analyser.summary.TweetSummaryService;
 import net.piotrl.dao.Party;
 import net.piotrl.dao.PartyRepository;
 import net.piotrl.dao.TweetsRepository;
+import net.piotrl.imports.SummaryPreview;
 import net.piotrl.imports.TweetsImporter;
 import net.piotrl.imports.TweetsPreview;
 import net.piotrl.imports.UploadInfoWindow;
@@ -22,28 +24,34 @@ public class VaadinInitializer extends UI {
 
     private final TweetsRepository tweetsRepository;
     private final PartyRepository partyRepository;
-    private final TweetsPreview editor;
+    private final TweetSummaryService tweetSummaryService;
+    private final TweetsPreview tweetsPreview;
+    private final SummaryPreview summaryPreview;
 
-    private final Grid grid;
-    private final TextField filter;
-    private final Upload addNewBtn;
+    private final Grid grid = new Grid();
+    private final TextField filter = new TextField();
+    private final Upload uploadButton;
     private UploadInfoWindow uploadInfoWindow;
 
     @Autowired
-    public VaadinInitializer(PartyRepository partyRepository, TweetsRepository tweetsRepository, TweetsPreview editor) {
+    public VaadinInitializer(PartyRepository partyRepository,
+                             TweetsRepository tweetsRepository,
+                             TweetSummaryService tweetSummaryService,
+                             TweetsPreview tweetsPreview,
+                             SummaryPreview summaryPreview) {
         this.tweetsRepository = tweetsRepository;
         this.partyRepository = partyRepository;
-        this.editor = editor;
-        this.grid = new Grid();
-        this.filter = new TextField();
-        this.addNewBtn = uploadButton();
+        this.tweetSummaryService = tweetSummaryService;
+        this.tweetsPreview = tweetsPreview;
+        this.summaryPreview = summaryPreview;
+        this.uploadButton = uploadButton();
     }
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
         // build layout
-        HorizontalLayout actions = new HorizontalLayout(filter, addNewBtn);
-        VerticalLayout mainLayout = new VerticalLayout(actions, grid, editor);
+        HorizontalLayout actions = new HorizontalLayout(filter, uploadButton);
+        VerticalLayout mainLayout = new VerticalLayout(actions, grid, tweetsPreview);
         setContent(mainLayout);
 
         // Configure layouts and components
@@ -63,22 +71,12 @@ public class VaadinInitializer extends UI {
 
         grid.addSelectionListener(e -> {
             if (e.getSelected().isEmpty()) {
-                editor.setVisible(false);
-            }
-            else {
+                tweetsPreview.setVisible(false);
+            } else {
                 Party selectedParty = (Party) grid.getSelectedRow();
-                editor.preview(selectedParty.getName());
+//                tweetsPreview.preview(selectedParty.getName());
+                summaryPreview.preview(selectedParty.getId());
             }
-        });
-
-
-        // Instantiate and edit new Customer the new button is clicked
-//        addNewBtn.addClickListener(e -> editor.editCustomer(new Customer("", "")));
-
-        // Listen changes made by the editor, refresh data from backend
-        editor.setChangeHandler(() -> {
-            editor.setVisible(false);
-            partiesList(filter.getValue());
         });
 
         // Initialize listing
@@ -105,7 +103,7 @@ public class VaadinInitializer extends UI {
         Upload upload = new Upload();
         upload.setImmediate(false);
         upload.setButtonCaption("Upload File");
-        TweetsImporter fileUploader = new TweetsImporter(partyRepository, tweetsRepository);
+        TweetsImporter fileUploader = new TweetsImporter(partyRepository, tweetsRepository, tweetSummaryService);
         upload.setReceiver(fileUploader);
         upload.addStartedListener((Upload.StartedListener) event -> {
             if (uploadInfoWindow.getParent() == null) {

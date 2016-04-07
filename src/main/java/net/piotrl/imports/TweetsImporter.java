@@ -3,13 +3,18 @@ package net.piotrl.imports;
 import com.vaadin.server.Page;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Upload;
-import net.piotrl.dao.Tweet;
+import net.piotrl.analyser.summary.DaySummary;
+import net.piotrl.analyser.summary.Summary;
+import net.piotrl.analyser.summary.TweetSummaryService;
 import net.piotrl.dao.Party;
 import net.piotrl.dao.PartyRepository;
+import net.piotrl.dao.Tweet;
 import net.piotrl.dao.TweetsRepository;
 import net.piotrl.utils.FileUtil;
+import org.springframework.beans.BeanUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -22,10 +27,14 @@ public class TweetsImporter implements Upload.Receiver, Upload.SucceededListener
 
     TweetsRepository tweetsRepository;
     PartyRepository partyRepository;
+    TweetSummaryService tweetSummaryService;
 
-    public TweetsImporter(PartyRepository partyRepository, TweetsRepository tweetsRepository) {
+    public TweetsImporter(PartyRepository partyRepository,
+                          TweetsRepository tweetsRepository,
+                          TweetSummaryService tweetSummaryService) {
         this.tweetsRepository = tweetsRepository;
         this.partyRepository = partyRepository;
+        this.tweetSummaryService = tweetSummaryService;
     }
 
     public OutputStream receiveUpload(String filename,
@@ -39,7 +48,7 @@ public class TweetsImporter implements Upload.Receiver, Upload.SucceededListener
         try {
             file = new File("uploads/" + filename);
             fos = new FileOutputStream(file);
-        } catch (final java.io.FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
             showNotification("Could not open file", ERROR_MESSAGE);
             return null;
         }
@@ -53,16 +62,21 @@ public class TweetsImporter implements Upload.Receiver, Upload.SucceededListener
 
     public void uploadSucceeded(Upload.SucceededEvent event) {
         String filename = event.getFilename();
-        List<Tweet> tweets = FileUtil.loadFromCsv(filename);
-        tweetsRepository.save(tweets);
+        String partyName = filename.replace(".csv", "");
 
-        saveParty(filename);
+
+        List<Tweet> importedTweets = FileUtil.loadFromCsv(filename);
+        tweetsRepository.save(importedTweets);
+
+        List<Tweet> allTweets = tweetsRepository.findByPartyNameStartsWithIgnoreCase(partyName);
+        Summary summary = tweetSummaryService.calcSummaries(allTweets);
+        saveParty(partyName, summary);
     }
 
-    private void saveParty(String filename) {
-        String partyName = filename.replace(".csv", "");
+    private void saveParty(String partyName, Summary summary) {
         Party party = new Party();
         party.setName(partyName);
+        BeanUtils.copyProperties(summary, party);
         partyRepository.save(party);
     }
-};
+}

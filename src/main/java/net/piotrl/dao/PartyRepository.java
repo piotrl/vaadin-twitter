@@ -6,4 +6,7 @@ import java.util.List;
 
 public interface PartyRepository extends JpaRepository<Party, Long> {
     List<Party> findByNameStartsWithIgnoreCase(String partyName);
+
+    Party findOneByNameStartsWithIgnoreCase(String partyName);
+
 }

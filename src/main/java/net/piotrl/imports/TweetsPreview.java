@@ -28,30 +28,14 @@ public class TweetsPreview extends VerticalLayout {
     }
 
     public final void preview(String partyName) {
-        grid.setHeight(300, Unit.PIXELS);
+        grid.setHeight(750, Unit.PIXELS);
         grid.setColumns("partyName", "day", "tweet");
 
         List<Tweet> tweets = repository.findByPartyNameStartsWithIgnoreCase(partyName);
 
-        // Bind customer properties to similarly named fields
-        // Could also use annotation or "manual binding" or programmatically
-        // moving values from fields to entities before saving
-//        BeanFieldGroup.bindFieldsUnbuffered(customer, this);
-
         setVisible(true);
 
-        // Select all text in firstName field automatically
         grid.setContainerDataSource(
                 new BeanItemContainer(Tweet.class, tweets));
-    }
-
-    public void setChangeHandler(ChangeHandler h) {
-        // ChangeHandler is notified when either save or delete
-        // is clicked
-    }
-
-    public interface ChangeHandler {
-
-        void onChange();
     }
 }

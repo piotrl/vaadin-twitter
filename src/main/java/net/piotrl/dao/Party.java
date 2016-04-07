@@ -1,13 +1,13 @@
 package net.piotrl.dao;
 
+import net.piotrl.analyser.summary.Summary;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import java.util.List;
 
 @Entity
-public class Party {
+public class Party extends Summary {
 
     @Id
     @GeneratedValue
@@ -15,8 +15,7 @@ public class Party {
 
     private String name;
 
-    @OneToMany
-    private List<Tweet> tweets;
+    private int tweetsSize;
 
     public Long getId() {
         return id;
@@ -34,11 +33,11 @@ public class Party {
         this.name = name;
     }
 
-    public List<Tweet> getTweets() {
-        return tweets;
+    public int getTweetsSize() {
+        return tweetsSize;
     }
 
-    public void setTweets(List<Tweet> tweets) {
-        this.tweets = tweets;
+    public void setTweetsSize(int tweetsSize) {
+        this.tweetsSize = tweetsSize;
     }
 }
