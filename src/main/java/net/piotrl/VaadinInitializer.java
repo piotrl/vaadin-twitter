@@ -8,7 +8,9 @@ import com.vaadin.ui.*;
 import net.piotrl.dao.Party;
 import net.piotrl.dao.PartyRepository;
 import net.piotrl.dao.TweetsRepository;
-import net.piotrl.imports.*;
+import net.piotrl.imports.TweetsImporter;
+import net.piotrl.imports.TweetsPreview;
+import net.piotrl.imports.UploadInfoWindow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
@@ -20,7 +22,7 @@ public class VaadinInitializer extends UI {
 
     private final TweetsRepository tweetsRepository;
     private final PartyRepository partyRepository;
-    private final CustomerEditor editor;
+    private final TweetsPreview editor;
 
     private final Grid grid;
     private final TextField filter;
@@ -28,7 +30,7 @@ public class VaadinInitializer extends UI {
     private UploadInfoWindow uploadInfoWindow;
 
     @Autowired
-    public VaadinInitializer(PartyRepository partyRepository, TweetsRepository tweetsRepository, CustomerEditor editor) {
+    public VaadinInitializer(PartyRepository partyRepository, TweetsRepository tweetsRepository, TweetsPreview editor) {
         this.tweetsRepository = tweetsRepository;
         this.partyRepository = partyRepository;
         this.editor = editor;
@@ -59,13 +61,13 @@ public class VaadinInitializer extends UI {
         // Replace listing with filtered content when user changes filter
         filter.addTextChangeListener(e -> partiesList(e.getText()));
 
-        // Connect selected Customer to editor or hide if none is selected
         grid.addSelectionListener(e -> {
             if (e.getSelected().isEmpty()) {
                 editor.setVisible(false);
             }
             else {
-                editor.editCustomer((Customer) grid.getSelectedRow());
+                Party selectedParty = (Party) grid.getSelectedRow();
+                editor.preview(selectedParty.getName());
             }
         });
 
