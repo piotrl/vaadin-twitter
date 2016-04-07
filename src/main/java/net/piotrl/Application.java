@@ -1,8 +1,7 @@
 package net.piotrl;
 
 import net.piotrl.analyser.scrapper.Tweet;
-import net.piotrl.imports.Customer;
-import net.piotrl.imports.TweetsRepository;
+import net.piotrl.dao.TweetsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;

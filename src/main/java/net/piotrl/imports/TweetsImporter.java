@@ -4,6 +4,9 @@ import com.vaadin.server.Page;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Upload;
 import net.piotrl.analyser.scrapper.Tweet;
+import net.piotrl.dao.Party;
+import net.piotrl.dao.PartyRepository;
+import net.piotrl.dao.TweetsRepository;
 import net.piotrl.utils.FileUtil;
 
 import java.io.File;
@@ -15,9 +18,11 @@ public class TweetsImporter implements Upload.Receiver, Upload.SucceededListener
     public File file;
 
     TweetsRepository tweetsRepository;
+    PartyRepository partyRepository;
 
-    public TweetsImporter(TweetsRepository tweetsRepository) {
+    public TweetsImporter(PartyRepository partyRepository, TweetsRepository tweetsRepository) {
         this.tweetsRepository = tweetsRepository;
+        this.partyRepository = partyRepository;
     }
 
     public OutputStream receiveUpload(String filename,
@@ -39,8 +44,17 @@ public class TweetsImporter implements Upload.Receiver, Upload.SucceededListener
     }
 
     public void uploadSucceeded(Upload.SucceededEvent event) {
-        System.out.println(event.getFilename());
-        List<Tweet> tweets = FileUtil.loadFromCsv(event.getFilename());
+        String filename = event.getFilename();
+        List<Tweet> tweets = FileUtil.loadFromCsv(filename);
         tweetsRepository.save(tweets);
+
+        saveParty(filename);
+    }
+
+    private void saveParty(String filename) {
+        String partyName = filename.replace(".csv", "");
+        Party party = new Party();
+        party.setName(partyName);
+        partyRepository.save(party);
     }
 };
