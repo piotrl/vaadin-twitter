@@ -1,6 +1,6 @@
 package net.piotrl.utils;
 
-import net.piotrl.analyser.scrapper.Tweet;
+import net.piotrl.dao.Tweet;
 
 import java.io.IOException;
 import java.nio.file.Files;

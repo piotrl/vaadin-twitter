@@ -1,7 +1,8 @@
-package net.piotrl.analyser.scrapper;
+package net.piotrl.analyser.score;
 
 
 import net.piotrl.analyser.words.Emotion;
+import net.piotrl.dao.Tweet;
 
 public class TweetScore {
     private Tweet tweet;

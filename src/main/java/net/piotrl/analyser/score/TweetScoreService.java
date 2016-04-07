@@ -1,8 +1,9 @@
-package net.piotrl.analyser.scrapper;
+package net.piotrl.analyser.score;
 
 import net.piotrl.analyser.summary.DaySummary;
 import net.piotrl.analyser.words.Emotion;
 import net.piotrl.analyser.words.WordSemantic;
+import net.piotrl.dao.Tweet;
 
 import java.time.LocalDate;
 import java.util.Arrays;

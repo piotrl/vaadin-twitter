@@ -1,4 +1,4 @@
-package net.piotrl.analyser.scrapper;
+package net.piotrl.dao;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

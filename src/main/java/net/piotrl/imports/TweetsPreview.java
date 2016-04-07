@@ -3,10 +3,9 @@ package net.piotrl.imports;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.VerticalLayout;
-import net.piotrl.analyser.scrapper.Tweet;
+import net.piotrl.dao.Tweet;
 import net.piotrl.dao.TweetsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 

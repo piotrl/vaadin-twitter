@@ -1,6 +1,5 @@
 package net.piotrl.dao;
 
-import net.piotrl.analyser.scrapper.Tweet;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package net.piotrl.analyser.scrapper;
+package net.piotrl.analyser.score;
 
 public class StringSimilarity {
 

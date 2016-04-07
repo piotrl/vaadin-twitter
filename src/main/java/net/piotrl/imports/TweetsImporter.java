@@ -3,7 +3,7 @@ package net.piotrl.imports;
 import com.vaadin.server.Page;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Upload;
-import net.piotrl.analyser.scrapper.Tweet;
+import net.piotrl.dao.Tweet;
 import net.piotrl.dao.Party;
 import net.piotrl.dao.PartyRepository;
 import net.piotrl.dao.TweetsRepository;
@@ -13,6 +13,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.List;
+
+import static com.vaadin.ui.Notification.Type.ERROR_MESSAGE;
+import static com.vaadin.ui.Notification.Type.WARNING_MESSAGE;
 
 public class TweetsImporter implements Upload.Receiver, Upload.SucceededListener {
     public File file;
@@ -27,20 +30,25 @@ public class TweetsImporter implements Upload.Receiver, Upload.SucceededListener
 
     public OutputStream receiveUpload(String filename,
                                       String mimeType) {
-        // Create upload stream
-        FileOutputStream fos = null; // Stream to write to
+        if (!filename.contains(".csv")) {
+            showNotification("File is not CSV", WARNING_MESSAGE);
+            return null;
+        }
+
+        FileOutputStream fos;
         try {
-            // Open the file for writing.
             file = new File("uploads/" + filename);
             fos = new FileOutputStream(file);
         } catch (final java.io.FileNotFoundException e) {
-            new Notification("Could not open file<br/>",
-                    e.getMessage(),
-                    Notification.Type.ERROR_MESSAGE)
-                    .show(Page.getCurrent());
+            showNotification("Could not open file", ERROR_MESSAGE);
             return null;
         }
         return fos; // Return the output stream to write to
+    }
+
+    private void showNotification(String message, Notification.Type type) {
+        new Notification(message, type)
+                .show(Page.getCurrent());
     }
 
     public void uploadSucceeded(Upload.SucceededEvent event) {

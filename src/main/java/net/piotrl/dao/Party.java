@@ -1,7 +1,5 @@
 package net.piotrl.dao;
 
-import net.piotrl.analyser.scrapper.Tweet;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
