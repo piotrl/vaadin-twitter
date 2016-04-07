@@ -1,11 +1,27 @@
 package net.piotrl.analyser.scrapper;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.time.LocalDate;
 
+@Entity
 public class Tweet {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
     private String partyName;
+
     private LocalDate day;
+
+    @Column(columnDefinition = "TEXT")
     private String tweet;
+
+    public Tweet() {
+    }
 
     public Tweet(String partyName, LocalDate day, String tweet) {
         this.partyName = partyName;

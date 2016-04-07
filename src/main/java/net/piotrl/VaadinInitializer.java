@@ -2,10 +2,10 @@ package net.piotrl;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
+import net.piotrl.analyser.scrapper.Tweet;
 import net.piotrl.imports.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -16,7 +16,7 @@ import java.util.List;
 @Theme("valo")
 public class VaadinInitializer extends UI {
 
-    private final CustomerRepository repo;
+    private final TweetsRepository repo;
     private final CustomerEditor editor;
 
     private final Grid grid;
@@ -25,8 +25,8 @@ public class VaadinInitializer extends UI {
     private UploadInfoWindow uploadInfoWindow;
 
     @Autowired
-    public VaadinInitializer(CustomerRepository repo, CustomerEditor editor) {
-        this.repo = repo;
+    public VaadinInitializer(TweetsRepository tweetsRepository, CustomerEditor editor) {
+        this.repo = tweetsRepository;
         this.editor = editor;
         this.grid = new Grid();
         this.filter = new TextField();
@@ -46,14 +46,14 @@ public class VaadinInitializer extends UI {
         mainLayout.setSpacing(true);
 
         grid.setHeight(300, Unit.PIXELS);
-        grid.setColumns("id", "firstName", "lastName");
+        grid.setColumns("partyName", "day", "tweet");
 
         filter.setInputPrompt("Filter by party name");
 
         // Hook logic to components
 
         // Replace listing with filtered content when user changes filter
-        filter.addTextChangeListener(e -> listCustomers(e.getText()));
+        filter.addTextChangeListener(e -> listTweets(e.getText()));
 
         // Connect selected Customer to editor or hide if none is selected
         grid.addSelectionListener(e -> {
@@ -72,30 +72,30 @@ public class VaadinInitializer extends UI {
         // Listen changes made by the editor, refresh data from backend
         editor.setChangeHandler(() -> {
             editor.setVisible(false);
-            listCustomers(filter.getValue());
+            listTweets(filter.getValue());
         });
 
         // Initialize listing
-        listCustomers(null);
+        listTweets(null);
     }
 
-    private void listCustomers(String text) {
-        List<Customer> customers;
-        if (StringUtils.isEmpty(text)) {
-            customers = repo.findAll();
+    private void listTweets(String partyName) {
+        List<Tweet> tweets;
+        if (StringUtils.isEmpty(partyName)) {
+            tweets = repo.findAll();
         } else {
-            customers = repo.findByLastNameStartsWithIgnoreCase(text);
+            tweets = repo.findByPartyNameStartsWithIgnoreCase(partyName);
         }
 
         grid.setContainerDataSource(
-                new BeanItemContainer(Customer.class, customers));
+                new BeanItemContainer(Tweet.class, tweets));
     }
 
     private Upload uploadButton() {
         Upload upload = new Upload();
         upload.setImmediate(false);
         upload.setButtonCaption("Upload File");
-        FileUploader fileUploader = new FileUploader();
+        TweetsImporter fileUploader = new TweetsImporter(repo);
         upload.setReceiver(fileUploader);
         upload.addStartedListener((Upload.StartedListener) event -> {
             if (uploadInfoWindow.getParent() == null) {

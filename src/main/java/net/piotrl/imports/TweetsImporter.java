@@ -6,11 +6,19 @@ import com.vaadin.ui.Upload;
 import net.piotrl.analyser.scrapper.Tweet;
 import net.piotrl.utils.FileUtil;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.List;
 
-public class FileUploader implements Upload.Receiver, Upload.SucceededListener {
+public class TweetsImporter implements Upload.Receiver, Upload.SucceededListener {
     public File file;
+
+    TweetsRepository tweetsRepository;
+
+    public TweetsImporter(TweetsRepository tweetsRepository) {
+        this.tweetsRepository = tweetsRepository;
+    }
 
     public OutputStream receiveUpload(String filename,
                                       String mimeType) {
@@ -32,15 +40,7 @@ public class FileUploader implements Upload.Receiver, Upload.SucceededListener {
 
     public void uploadSucceeded(Upload.SucceededEvent event) {
         System.out.println(event.getFilename());
-        List<Tweet> pisTweets = FileUtil.loadFromCsv(event.getFilename());
-
-        try {
-            FileInputStream fileInputStream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        // Show the uploaded file in the image viewer
-//        image.setVisible(true);
-//        image.setSource(new FileResource(file));
+        List<Tweet> tweets = FileUtil.loadFromCsv(event.getFilename());
+        tweetsRepository.save(tweets);
     }
 };
