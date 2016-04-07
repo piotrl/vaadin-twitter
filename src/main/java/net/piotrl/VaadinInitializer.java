@@ -6,10 +6,7 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
-import net.piotrl.imports.Customer;
-import net.piotrl.imports.CustomerEditor;
-import net.piotrl.imports.CustomerRepository;
-import net.piotrl.imports.UploadInfoWindow;
+import net.piotrl.imports.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
@@ -24,7 +21,7 @@ public class VaadinInitializer extends UI {
 
     private final Grid grid;
     private final TextField filter;
-    private final Button addNewBtn;
+    private final Upload addNewBtn;
     private UploadInfoWindow uploadInfoWindow;
 
     @Autowired
@@ -33,7 +30,7 @@ public class VaadinInitializer extends UI {
         this.editor = editor;
         this.grid = new Grid();
         this.filter = new TextField();
-        this.addNewBtn = new Button("New customer", FontAwesome.PLUS);
+        this.addNewBtn = uploadButton();
     }
 
     @Override
@@ -51,7 +48,7 @@ public class VaadinInitializer extends UI {
         grid.setHeight(300, Unit.PIXELS);
         grid.setColumns("id", "firstName", "lastName");
 
-        filter.setInputPrompt("Filter by last name");
+        filter.setInputPrompt("Filter by party name");
 
         // Hook logic to components
 
@@ -70,7 +67,7 @@ public class VaadinInitializer extends UI {
 
 
         // Instantiate and edit new Customer the new button is clicked
-        addNewBtn.addClickListener(e -> editor.editCustomer(new Customer("", "")));
+//        addNewBtn.addClickListener(e -> editor.editCustomer(new Customer("", "")));
 
         // Listen changes made by the editor, refresh data from backend
         editor.setChangeHandler(() -> {
@@ -94,16 +91,19 @@ public class VaadinInitializer extends UI {
                 new BeanItemContainer(Customer.class, customers));
     }
 
-    private Upload getUploadButton() {
+    private Upload uploadButton() {
         Upload upload = new Upload();
         upload.setImmediate(false);
         upload.setButtonCaption("Upload File");
+        FileUploader fileUploader = new FileUploader();
+        upload.setReceiver(fileUploader);
         upload.addStartedListener((Upload.StartedListener) event -> {
             if (uploadInfoWindow.getParent() == null) {
                 UI.getCurrent().addWindow(uploadInfoWindow);
             }
             uploadInfoWindow.setClosable(false);
         });
+        upload.addSucceededListener(fileUploader::uploadSucceeded);
         upload.addFinishedListener((Upload.FinishedListener) event ->
                 uploadInfoWindow.setClosable(true)
         );
