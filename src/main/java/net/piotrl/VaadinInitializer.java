@@ -100,20 +100,26 @@ public class VaadinInitializer extends UI {
     }
 
     private Upload uploadButton() {
-        Upload upload = new Upload();
-        upload.setImmediate(false);
-        upload.setButtonCaption("Upload File");
         TweetsImporter fileUploader = new TweetsImporter(partyRepository, tweetsRepository, tweetSummaryService);
+        Upload upload = new Upload();
+        upload.setImmediate(true);
+        upload.setButtonCaption("Upload File");
         upload.setReceiver(fileUploader);
         upload.addStartedListener((Upload.StartedListener) event -> {
+            uploadInfoWindow.uploadStarted(event);
             if (uploadInfoWindow.getParent() == null) {
                 UI.getCurrent().addWindow(uploadInfoWindow);
             }
             uploadInfoWindow.setClosable(false);
         });
-        upload.addSucceededListener(fileUploader::uploadSucceeded);
-        upload.addFinishedListener((Upload.FinishedListener) event ->
-                uploadInfoWindow.setClosable(true)
+        upload.addSucceededListener(event -> {
+            fileUploader.uploadSucceeded(event);
+            refreshPartiesGrid(null);
+        });
+        upload.addFinishedListener((Upload.FinishedListener) event -> {
+                    uploadInfoWindow.uploadFinished(event);
+                    uploadInfoWindow.setClosable(true);
+                }
         );
 
         uploadInfoWindow = new UploadInfoWindow(upload);

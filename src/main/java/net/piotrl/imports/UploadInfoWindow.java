@@ -7,7 +7,6 @@ public class UploadInfoWindow extends Window implements
         Upload.FinishedListener {
     private final Label state = new Label();
     private final Label fileName = new Label();
-    private final Label textualProgress = new Label();
 
     private final ProgressBar progressBar = new ProgressBar();
     private final Button cancelButton;
@@ -22,51 +21,41 @@ public class UploadInfoWindow extends Window implements
         setResizable(false);
         setDraggable(false);
 
-        final FormLayout l = new FormLayout();
-        setContent(l);
-        l.setMargin(true);
+        final FormLayout form = new FormLayout();
+        setContent(form);
+        form.setMargin(true);
 
         final HorizontalLayout stateLayout = new HorizontalLayout();
         stateLayout.setSpacing(true);
         stateLayout.addComponent(state);
 
         cancelButton = new Button("Cancel");
-        cancelButton.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(final Button.ClickEvent event) {
-                upload.interruptUpload();
-            }
-        });
+        cancelButton.addClickListener((Button.ClickListener) event -> upload.interruptUpload());
         cancelButton.setVisible(false);
         cancelButton.setStyleName("small");
         stateLayout.addComponent(cancelButton);
 
         stateLayout.setCaption("Current state");
         state.setValue("Idle");
-        l.addComponent(stateLayout);
+        form.addComponent(stateLayout);
 
         fileName.setCaption("File name");
-        l.addComponent(fileName);
+        form.addComponent(fileName);
 
         progressBar.setCaption("Progress");
         progressBar.setVisible(false);
-        l.addComponent(progressBar);
-
-        textualProgress.setVisible(false);
-        l.addComponent(textualProgress);
+        form.addComponent(progressBar);
 
         upload.addStartedListener(this);
         upload.addProgressListener(this);
         upload.addSucceededListener(this);
         upload.addFinishedListener(this);
-
     }
 
     @Override
     public void uploadFinished(final Upload.FinishedEvent event) {
-        state.setValue("Idle");
+        state.setValue("Finished");
         progressBar.setVisible(false);
-        textualProgress.setVisible(false);
         cancelButton.setVisible(false);
     }
 
@@ -76,7 +65,6 @@ public class UploadInfoWindow extends Window implements
         progressBar.setValue(0f);
         progressBar.setVisible(true);
         UI.getCurrent().setPollInterval(500);
-        textualProgress.setVisible(true);
         // updates to client
         state.setValue("Uploading");
         fileName.setValue(event.getFilename());
@@ -89,8 +77,6 @@ public class UploadInfoWindow extends Window implements
                                final long contentLength) {
         // this method gets called several times during the update
         progressBar.setValue(new Float(readBytes / (float) contentLength));
-        textualProgress.setValue("Processed " + readBytes + " bytes of "
-                + contentLength);
     }
 
     @Override

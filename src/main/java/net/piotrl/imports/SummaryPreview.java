@@ -17,6 +17,7 @@ public class SummaryPreview extends VerticalLayout {
     private Label HappinessLabel = new Label();
     private Label FearLabel = new Label();
     private Label SadnessLabel = new Label();
+    private Label SizeLabel = new Label();
 
     @Autowired
     public SummaryPreview(PartyRepository repository) {
@@ -25,17 +26,21 @@ public class SummaryPreview extends VerticalLayout {
                 DisgustLabel,
                 HappinessLabel,
                 FearLabel,
-                SadnessLabel);
+                SadnessLabel,
+                SizeLabel
+        );
         setVisible(false);
     }
 
     public final void preview(Long partyId) {
         Party party = repository.findOne(partyId);
-        AngerLabel.setValue("Anger: " + party.getANGER());
-        DisgustLabel.setValue("Disgust: " + party.getDISGUST());
-        HappinessLabel.setValue("Happiness: " + party.getHAPPINESS());
-        FearLabel.setValue("Fear: " + party.getFEAR());
-        SadnessLabel.setValue("Sadness: " + party.getSADNESS());
+        double size = party.getTweetsSize();
+        AngerLabel.setValue("Anger: " + Math.floor((party.getANGER() / size) * 100) + "%");
+        DisgustLabel.setValue("Disgust: " + Math.floor((party.getDISGUST() / size) * 100) + "%");
+        HappinessLabel.setValue("Happiness: " + Math.floor((party.getHAPPINESS() / size) * 100) + "%");
+        FearLabel.setValue("Fear: " + Math.floor((party.getFEAR() / size) * 100) + "%");
+        SadnessLabel.setValue("Sadness: " + Math.floor((party.getSADNESS() / size) * 100) + "%");
+        SizeLabel.setValue("Tweets: " + party.getTweetsSize());
 
         setVisible(true);
     }

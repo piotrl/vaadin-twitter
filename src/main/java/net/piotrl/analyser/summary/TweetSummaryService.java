@@ -28,6 +28,7 @@ public class TweetSummaryService {
     public DaySummary calcSummaries(List<Tweet> tweets) {
         List<TweetScore> scores = getTweetScores(tweets);
 
+        System.out.println("Scores calculated: " + tweets.size());
         return service.calcSummary(scores);
     }
 
