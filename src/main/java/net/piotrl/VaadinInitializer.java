@@ -49,29 +49,18 @@ public class VaadinInitializer extends UI {
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
-        // build layout
-        VerticalLayout columnRight = new VerticalLayout(summaryPreview, tweetsPreview);
-        HorizontalLayout actions = new HorizontalLayout(filter, uploadButton, columnRight);
-        VerticalLayout columnLeft = new VerticalLayout(actions, grid);
-        HorizontalLayout mainLayout = new HorizontalLayout(columnLeft, columnRight);
-        setContent(mainLayout);
-
-        // Configure layouts and components
-        actions.setSpacing(true);
-        columnLeft.setMargin(true);
-        columnLeft.setSpacing(true);
-        columnRight.setMargin(true);
-        columnRight.setSpacing(true);
-
-        grid.setHeight(300, Unit.PIXELS);
-        grid.setColumns("name");
+        HorizontalLayout layout = buildLayout();
+        setContent(layout);
 
         filter.setInputPrompt("Filter by party name");
         filter.addTextChangeListener(e -> refreshPartiesGrid(e.getText()));
 
+        grid.setHeight(300, Unit.PIXELS);
+        grid.setColumns("name");
         grid.addSelectionListener(e -> {
             if (e.getSelected().isEmpty()) {
                 tweetsPreview.setVisible(false);
+                summaryPreview.setVisible(false);
             } else {
                 Party selectedParty = (Party) grid.getSelectedRow();
                 tweetsPreview.preview(selectedParty.getName());
@@ -81,6 +70,20 @@ public class VaadinInitializer extends UI {
 
         // Initialize listing
         refreshPartiesGrid(null);
+    }
+
+    private HorizontalLayout buildLayout() {
+        VerticalLayout columnRight = new VerticalLayout(summaryPreview, tweetsPreview);
+        HorizontalLayout actions = new HorizontalLayout(filter, uploadButton, columnRight);
+        VerticalLayout columnLeft = new VerticalLayout(actions, grid);
+
+        actions.setSpacing(true);
+        columnLeft.setMargin(true);
+        columnLeft.setSpacing(true);
+        columnRight.setMargin(true);
+        columnRight.setSpacing(true);
+
+        return new HorizontalLayout(columnLeft, columnRight);
     }
 
     private void refreshPartiesGrid(String partyName) {

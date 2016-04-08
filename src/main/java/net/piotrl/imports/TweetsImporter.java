@@ -64,8 +64,10 @@ public class TweetsImporter implements Upload.Receiver, Upload.SucceededListener
         String filename = event.getFilename();
         String partyName = filename.replace(".csv", "");
 
+        System.out.println("Imported: " + partyName);
         List<Tweet> importedTweets = FileUtil.loadFromCsv(filename);
         tweetsRepository.save(importedTweets);
+        System.out.println("Imported tweets: " + importedTweets.size());
 
         Summary summary = tweetSummaryService.calcSummaries(importedTweets);
         saveParty(partyName, summary, importedTweets.size());
