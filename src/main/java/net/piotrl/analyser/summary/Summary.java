@@ -1,5 +1,8 @@
 package net.piotrl.analyser.summary;
 
+import javax.persistence.MappedSuperclass;
+
+@MappedSuperclass
 public class Summary {
     private int HAPPINESS;
     private int ANGER;

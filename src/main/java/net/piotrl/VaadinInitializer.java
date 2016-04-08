@@ -50,21 +50,23 @@ public class VaadinInitializer extends UI {
     @Override
     protected void init(VaadinRequest vaadinRequest) {
         // build layout
-        HorizontalLayout actions = new HorizontalLayout(filter, uploadButton);
-        VerticalLayout mainLayout = new VerticalLayout(actions, grid, tweetsPreview);
+        VerticalLayout columnRight = new VerticalLayout(summaryPreview, tweetsPreview);
+        HorizontalLayout actions = new HorizontalLayout(filter, uploadButton, columnRight);
+        VerticalLayout columnLeft = new VerticalLayout(actions, grid);
+        HorizontalLayout mainLayout = new HorizontalLayout(columnLeft, columnRight);
         setContent(mainLayout);
 
         // Configure layouts and components
         actions.setSpacing(true);
-        mainLayout.setMargin(true);
-        mainLayout.setSpacing(true);
+        columnLeft.setMargin(true);
+        columnLeft.setSpacing(true);
+        columnRight.setMargin(true);
+        columnRight.setSpacing(true);
 
         grid.setHeight(300, Unit.PIXELS);
         grid.setColumns("name");
 
         filter.setInputPrompt("Filter by party name");
-
-        // Replace listing with filtered content when user changes filter
         filter.addTextChangeListener(e -> refreshPartiesGrid(e.getText()));
 
         grid.addSelectionListener(e -> {
