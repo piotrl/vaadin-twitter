@@ -67,6 +67,7 @@ public class TweetsImporter implements Upload.Receiver, Upload.SucceededListener
     public void uploadSucceeded(Upload.SucceededEvent event) {
         String filename = event.getFilename();
         String partyName = filename.replace(".csv", "");
+        ui.uploadInfoWindow.progressBar.setIndeterminate(true);
 
         Runnable task = () -> {
             System.out.println("Imported: " + partyName);

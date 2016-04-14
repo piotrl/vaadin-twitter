@@ -3,12 +3,12 @@ package net.piotrl.imports;
 import com.vaadin.ui.*;
 
 public class UploadInfoWindow extends Window implements
-        Upload.StartedListener, Upload.ProgressListener, Upload.SucceededListener,
+        Upload.StartedListener, Upload.SucceededListener,
         Upload.FinishedListener {
     private final Label state = new Label();
     private final Label fileName = new Label();
 
-    private final ProgressBar progressBar = new ProgressBar();
+    public final ProgressBar progressBar = new ProgressBar();
 
     public UploadInfoWindow(final Upload upload) {
         super("Status");
@@ -40,7 +40,6 @@ public class UploadInfoWindow extends Window implements
         form.addComponent(progressBar);
 
         upload.addStartedListener(this);
-        upload.addProgressListener(this);
         upload.addSucceededListener(this);
     }
 
@@ -61,12 +60,11 @@ public class UploadInfoWindow extends Window implements
         fileName.setValue(event.getFilename());
     }
 
-    @Override
-    public void updateProgress(final long readBytes,
-                               final long contentLength) {
+    public void updateProgress(int stages) {
         // this method gets called several times during the update
-        progressBar.setValue(new Float(readBytes / (float) contentLength));
+        progressBar.setValue((float) (stages / 4));
     }
+
 
     @Override
     public void uploadSucceeded(final Upload.SucceededEvent event) {

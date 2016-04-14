@@ -107,7 +107,7 @@ public class VaadinInitializer extends UI {
         Upload upload = new Upload();
         upload.setImmediate(true);
         upload.setButtonCaption("Upload File");
-        upload.setErrorHandler(errorEvent -> {});
+        upload.setReceiver(fileUploader);
         upload.addStartedListener((Upload.StartedListener) event -> {
             uploadInfoWindow.uploadStarted(event);
             if (uploadInfoWindow.getParent() == null) {
@@ -119,8 +119,11 @@ public class VaadinInitializer extends UI {
             fileUploader.uploadSucceeded(event);
             refreshPartiesGrid(null);
         });
+        upload.addFailedListener(event -> {
+            uploadInfoWindow.close();
+            refreshPartiesGrid(null);
+        });
 
-        upload.setReceiver(fileUploader);
         uploadInfoWindow = new UploadInfoWindow(upload);
         return upload;
     }
