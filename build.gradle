@@ -6,7 +6,8 @@ buildscript {
 		mavenCentral()
 	}
 	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}") 
+		classpath 'postgresql:postgresql:9.1-901-1.jdbc4'
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
 	}
 }
 
@@ -31,6 +32,8 @@ repositories {
 dependencies {
 	compile('com.vaadin:vaadin-spring-boot-starter:1.0.0')
 	compile("org.springframework.boot:spring-boot-starter-data-jpa")
+	compile("com.vaadin:vaadin-push")
+//	compile 'postgresql:postgresql:9.1-901-1.jdbc4'
 
 	runtime('com.h2database:h2')
 

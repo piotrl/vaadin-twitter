@@ -3,7 +3,7 @@ package net.piotrl.imports;
 import com.vaadin.server.Page;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Upload;
-import net.piotrl.analyser.summary.DaySummary;
+import net.piotrl.VaadinInitializer;
 import net.piotrl.analyser.summary.Summary;
 import net.piotrl.analyser.summary.TweetSummaryService;
 import net.piotrl.dao.Party;
@@ -22,19 +22,23 @@ import java.util.List;
 import static com.vaadin.ui.Notification.Type.ERROR_MESSAGE;
 import static com.vaadin.ui.Notification.Type.WARNING_MESSAGE;
 
-public class TweetsImporter implements Upload.Receiver, Upload.SucceededListener {
+public class TweetsImporter implements Upload.Receiver, Upload.SucceededListener, Upload.FailedListener {
     public File file;
 
-    TweetsRepository tweetsRepository;
-    PartyRepository partyRepository;
-    TweetSummaryService tweetSummaryService;
+    private final TweetsRepository tweetsRepository;
+    private final PartyRepository partyRepository;
+    private final TweetSummaryService tweetSummaryService;
+    private final VaadinInitializer ui;
+
 
     public TweetsImporter(PartyRepository partyRepository,
                           TweetsRepository tweetsRepository,
-                          TweetSummaryService tweetSummaryService) {
+                          TweetSummaryService tweetSummaryService,
+                          VaadinInitializer vaadinInitializer) {
         this.tweetsRepository = tweetsRepository;
         this.partyRepository = partyRepository;
         this.tweetSummaryService = tweetSummaryService;
+        this.ui = vaadinInitializer;
     }
 
     public OutputStream receiveUpload(String filename,
@@ -64,13 +68,22 @@ public class TweetsImporter implements Upload.Receiver, Upload.SucceededListener
         String filename = event.getFilename();
         String partyName = filename.replace(".csv", "");
 
-        System.out.println("Imported: " + partyName);
-        List<Tweet> importedTweets = FileUtil.loadFromCsv(filename);
-        tweetsRepository.save(importedTweets);
-        System.out.println("Imported tweets: " + importedTweets.size());
+        Runnable task = () -> {
+            System.out.println("Imported: " + partyName);
+            List<Tweet> importedTweets = FileUtil.loadFromCsv(filename);
+            tweetsRepository.save(importedTweets);
+            System.out.println("Imported tweets: " + importedTweets.size());
+            Summary summary = tweetSummaryService.calcSummaries(importedTweets);
+            saveParty(partyName, summary, importedTweets.size());
 
-        Summary summary = tweetSummaryService.calcSummaries(importedTweets);
-        saveParty(partyName, summary, importedTweets.size());
+            ui.access(() -> {
+                ui.uploadInfoWindow.uploadFinished(event);
+                ui.uploadInfoWindow.setClosable(true);
+                ui.refreshPartiesGrid(null);
+            });
+        };
+        Thread thread = new Thread(task);
+        thread.start();
     }
 
     private void saveParty(String partyName, Summary summary, int size) {
@@ -79,5 +92,11 @@ public class TweetsImporter implements Upload.Receiver, Upload.SucceededListener
         party.setTweetsSize(size);
         BeanUtils.copyProperties(summary, party);
         partyRepository.save(party);
+    }
+
+    @Override
+    public void uploadFailed(Upload.FailedEvent event) {
+        Upload component = (Upload) event.getComponent();
+        component.interruptUpload();
     }
 }

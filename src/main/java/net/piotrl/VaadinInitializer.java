@@ -31,7 +31,7 @@ public class VaadinInitializer extends UI {
     private final Grid grid = new Grid();
     private final TextField filter = new TextField();
     private final Upload uploadButton;
-    private UploadInfoWindow uploadInfoWindow;
+    public UploadInfoWindow uploadInfoWindow;
 
     @Autowired
     public VaadinInitializer(PartyRepository partyRepository,
@@ -86,7 +86,7 @@ public class VaadinInitializer extends UI {
         return new HorizontalLayout(columnLeft, columnRight);
     }
 
-    private void refreshPartiesGrid(String partyName) {
+    public void refreshPartiesGrid(String partyName) {
         List<Party> parties;
         if (StringUtils.isEmpty(partyName)) {
             parties = partyRepository.findAll();
@@ -103,12 +103,11 @@ public class VaadinInitializer extends UI {
     }
 
     private Upload uploadButton() {
-        TweetsImporter fileUploader = new TweetsImporter(partyRepository, tweetsRepository, tweetSummaryService);
+        TweetsImporter fileUploader = new TweetsImporter(partyRepository, tweetsRepository, tweetSummaryService, this);
         Upload upload = new Upload();
         upload.setImmediate(true);
         upload.setButtonCaption("Upload File");
         upload.setErrorHandler(errorEvent -> {});
-        upload.setReceiver(fileUploader);
         upload.addStartedListener((Upload.StartedListener) event -> {
             uploadInfoWindow.uploadStarted(event);
             if (uploadInfoWindow.getParent() == null) {
@@ -120,12 +119,8 @@ public class VaadinInitializer extends UI {
             fileUploader.uploadSucceeded(event);
             refreshPartiesGrid(null);
         });
-        upload.addFinishedListener((Upload.FinishedListener) event -> {
-                    uploadInfoWindow.uploadFinished(event);
-                    uploadInfoWindow.setClosable(true);
-                }
-        );
 
+        upload.setReceiver(fileUploader);
         uploadInfoWindow = new UploadInfoWindow(upload);
         return upload;
     }

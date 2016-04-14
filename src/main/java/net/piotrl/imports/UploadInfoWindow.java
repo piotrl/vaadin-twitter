@@ -42,7 +42,6 @@ public class UploadInfoWindow extends Window implements
         upload.addStartedListener(this);
         upload.addProgressListener(this);
         upload.addSucceededListener(this);
-        upload.addFinishedListener(this);
     }
 
     @Override
