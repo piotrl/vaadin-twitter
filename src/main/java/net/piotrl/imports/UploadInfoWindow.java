@@ -9,7 +9,6 @@ public class UploadInfoWindow extends Window implements
     private final Label fileName = new Label();
 
     private final ProgressBar progressBar = new ProgressBar();
-    private final Button cancelButton;
 
     public UploadInfoWindow(final Upload upload) {
         super("Status");
@@ -28,12 +27,6 @@ public class UploadInfoWindow extends Window implements
         final HorizontalLayout stateLayout = new HorizontalLayout();
         stateLayout.setSpacing(true);
         stateLayout.addComponent(state);
-
-        cancelButton = new Button("Cancel");
-        cancelButton.addClickListener((Button.ClickListener) event -> upload.interruptUpload());
-        cancelButton.setVisible(false);
-        cancelButton.setStyleName("small");
-        stateLayout.addComponent(cancelButton);
 
         stateLayout.setCaption("Current state");
         state.setValue("Idle");
@@ -56,7 +49,6 @@ public class UploadInfoWindow extends Window implements
     public void uploadFinished(final Upload.FinishedEvent event) {
         state.setValue("Finished");
         progressBar.setVisible(false);
-        cancelButton.setVisible(false);
     }
 
     @Override
@@ -68,8 +60,6 @@ public class UploadInfoWindow extends Window implements
         // updates to client
         state.setValue("Uploading");
         fileName.setValue(event.getFilename());
-
-        cancelButton.setVisible(true);
     }
 
     @Override

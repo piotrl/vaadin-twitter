@@ -107,6 +107,7 @@ public class VaadinInitializer extends UI {
         Upload upload = new Upload();
         upload.setImmediate(true);
         upload.setButtonCaption("Upload File");
+        upload.setErrorHandler(errorEvent -> {});
         upload.setReceiver(fileUploader);
         upload.addStartedListener((Upload.StartedListener) event -> {
             uploadInfoWindow.uploadStarted(event);
